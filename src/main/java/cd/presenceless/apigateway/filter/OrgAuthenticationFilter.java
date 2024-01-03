@@ -1,7 +1,7 @@
 package cd.presenceless.apigateway.filter;
 
 import cd.presenceless.apigateway.Config.JWTService;
-import cd.presenceless.apigateway.validator.RouteValidator;
+import cd.presenceless.apigateway.validator.OrgRouteValidator;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -11,19 +11,18 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
-public class AuthenticationFilter
-        extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
-    private final RouteValidator routeValidator;
-//    private final AuthClient authClient;
+public class OrgAuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+    private final OrgRouteValidator routeValidator;
+    //    private final AuthClient authClient;
     private final JWTService jwtService;
-    public AuthenticationFilter(RouteValidator routeValidator, JWTService jwtService) {
-        super(Config.class);
+
+    public OrgAuthenticationFilter(OrgRouteValidator routeValidator, JWTService jwtService) {
         this.routeValidator = routeValidator;
         this.jwtService = jwtService;
     }
 
     @Override
-    public GatewayFilter apply(Config config) {
+    public GatewayFilter apply(AuthenticationFilter.Config config) {
         return ((exchange, chain) -> {
             // Put your custom filter here
             if (routeValidator.isSecured.test(exchange.getRequest())) {
@@ -37,10 +36,10 @@ public class AuthenticationFilter
 
                 String authHeader = Objects
                         .requireNonNull(
-                            exchange
-                                    .getRequest()
-                                    .getHeaders()
-                                    .get(HttpHeaders.AUTHORIZATION)
+                                exchange
+                                        .getRequest()
+                                        .getHeaders()
+                                        .get(HttpHeaders.AUTHORIZATION)
                         ).get(0);
 
                 if (!authHeader.startsWith("Bearer ")) {
@@ -57,7 +56,7 @@ public class AuthenticationFilter
                 // TODO: Sending the request to the auth service is one way to validate the token
                 // TODO: To avoid the network call, we can use the same secret key used to sign the token
                 // final var isValid = authClient.verify(token).block();
-                final var isValid = jwtService.isValidToken(token);
+                final var isValid = jwtService.isValidOrgToken(token);
 
                 // A secure alternative is to use a private key to sign the token
                 // and use the public key to verify the token
