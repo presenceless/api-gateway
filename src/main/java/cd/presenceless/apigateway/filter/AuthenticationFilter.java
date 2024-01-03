@@ -57,7 +57,5 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         });
     }
 
-    public static class Config {
-        // Put the configuration properties
-    }
+    public static class Config {/* Put the configuration properties */}
 }
